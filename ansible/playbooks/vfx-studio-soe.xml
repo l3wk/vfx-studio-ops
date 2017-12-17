@@ -1,0 +1,4 @@
+- name: Provisioning script for vfx studio soe 
+  hosts: all
+  roles:
+    - bash 

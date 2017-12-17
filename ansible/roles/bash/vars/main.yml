@@ -1,0 +1,1 @@
+ps1: 'PS1="\[$(tput setaf 3)$(tput bold)[\]{{ image_name }}:{{ image_version }}@\\h$:\\w]#\[$(tput sgr0) \]"'
