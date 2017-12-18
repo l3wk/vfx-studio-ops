@@ -1,0 +1,5 @@
+- name: Customise bash prompt for root user
+  lineinfile:
+    dest: /root/.bashrc 
+    line: "{{ ps1 }}"
+    owner: root
