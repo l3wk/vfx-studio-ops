@@ -1,0 +1,23 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+    ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+    config.vm.define :vfx_studio_soe do |vfx_studio_soe|
+        vfx_studio_soe.vm.box = "centos/7"
+    end
+
+    ansible_root = ENV['ANSIBLE_ROOT']
+
+    ENV['ANSIBLE_ROLES_PATH'] = "#{ansible_root}/roles"
+
+    config.vm.provision :ansible do |ansible|
+        ansible.playbook = "#{ansible_root}/playbooks/vfx-studio-soe.yml"
+        ansible.sudo = true
+        ansible.extra_vars = {
+            image_name: "vfx-studio-soe",
+            image_version: "0.1.0"
+        }
+    end
+end

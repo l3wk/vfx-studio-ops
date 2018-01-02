@@ -1,3 +1,8 @@
+- name: Ensure root user .bashrc exists
+  file:
+    path: /root/.bashrc 
+    state: touch
+
 - name: Customise bash prompt for root user
   lineinfile:
     dest: /root/.bashrc 
