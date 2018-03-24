@@ -6,3 +6,6 @@ packer_cache/
 
 # For ansible
 *.retry
+
+# For vagrant
+*.vagrant

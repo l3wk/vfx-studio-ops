@@ -4,6 +4,7 @@
         "ansible_host": "default",
         "ansible_connection": "docker",
         "docker_user": "",
+        "docker_pass": "",
         "image_name": "vfx-studio-soe",
         "image_version": "0.1.0"
     },
@@ -38,10 +39,18 @@
         }
     ],
     "post-processors": [
-        {
-            "type": "docker-tag",
-            "repository": "{{user `docker_user`}}/{{user `image_name`}}",
-            "tag": "{{user `image_version`}}"
-        }
+        [
+            {
+                "type": "docker-tag",
+                "repository": "{{user `docker_user`}}/{{user `image_name`}}",
+                "tag": "{{user `image_version`}}"
+            },
+            {
+                "type": "docker-push",
+                "login": "true",
+                "login_username": "{{user `docker_user`}}",
+                "login_password": "{{user `docker_pass`}}"
+            }
+        ]
     ]
 }
