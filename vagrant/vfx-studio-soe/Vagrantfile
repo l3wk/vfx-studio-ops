@@ -9,12 +9,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     ansible_root = ENV['ANSIBLE_ROOT']
+    ansible_vault_password_file = ENV['ANSIBLE_VAULT_PASSWORD_FILE']
 
     ENV['ANSIBLE_ROLES_PATH'] = "#{ansible_root}/roles"
 
     config.vm.provision :ansible do |ansible|
         ansible.playbook = "#{ansible_root}/playbooks/vfx-studio-soe.yml"
         ansible.sudo = true
+        ansible.vault_password_file = "#{ansible_vault_password_file}"
         ansible.extra_vars = {
             image_name: "vfx-studio-soe",
             image_version: "0.1.0"

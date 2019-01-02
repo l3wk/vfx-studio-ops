@@ -6,6 +6,7 @@ packer_cache/
 
 # For ansible
 *.retry
+secrets.yml
 
 # For vagrant
 *.vagrant

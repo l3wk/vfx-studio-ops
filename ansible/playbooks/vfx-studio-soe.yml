@@ -1,4 +1,6 @@
 - name: Provisioning script for vfx studio soe 
   hosts: all
   roles:
-    - bash 
+    - role: bash 
+    - role: jumpcloud-agent
+      when: ansible_virtualization_type != "docker"

@@ -1,0 +1,23 @@
+- include_vars: secrets.yml
+
+- name: Install curl
+  yum:
+    name: curl
+    state: installed 
+
+- name: Install ntpdate
+  yum:
+    name: ntpdate
+    state: installed
+
+- name: Check if JumpCloud agent is already installed
+  shell: "[ -d /opt/jc ] && echo 'Found' || echo ''"
+  register: jc_installed
+
+- name: Update time
+  shell: "ntpdate -u pool.ntp.org"
+  when: "not jc_installed.stdout"
+
+- name: Install JumpCloud agent 
+  shell: "curl --header 'x-connect-key: {{ jumpcloud_key }}' {{ jumpcloud_url }} | sudo bash"
+  when: "not jc_installed.stdout"
