@@ -20,4 +20,6 @@
 
 - name: Install JumpCloud agent 
   shell: "curl --header 'x-connect-key: {{ jumpcloud_key }}' {{ jumpcloud_url }} | sudo bash"
+  args:
+    warn: False
   when: "not jc_installed.stdout"
