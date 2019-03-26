@@ -11,5 +11,9 @@ packer_cache/
 *.retry
 secrets.yml
 
+# For terraform
+.terraform
+terraform.tfstate*
+
 # For vagrant
 *.vagrant
