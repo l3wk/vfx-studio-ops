@@ -1,0 +1,2 @@
+[servers]
+vfx-dev-001     ansible_user=ops    ansible_become=yes
