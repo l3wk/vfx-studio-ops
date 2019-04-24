@@ -1,0 +1,4 @@
+nfs_client_path: /vfx
+
+nfs_server_host: vfx-nfs-001 
+nfs_server_path: /srv/nfs/vfx

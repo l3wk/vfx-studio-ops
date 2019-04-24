@@ -2,5 +2,8 @@
   hosts: all
   roles:
     - role: bash 
+      when: ansible_virtualization_type == "docker"
     - role: jumpcloud-agent
+      when: ansible_virtualization_type != "docker"
+    - role: ops-user 
       when: ansible_virtualization_type != "docker"

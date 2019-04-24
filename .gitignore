@@ -1,3 +1,6 @@
+# Builds
+build/
+
 # Cache objects
 packer_cache/
 
@@ -7,6 +10,10 @@ packer_cache/
 # For ansible
 *.retry
 secrets.yml
+
+# For terraform
+.terraform
+terraform.tfstate*
 
 # For vagrant
 *.vagrant

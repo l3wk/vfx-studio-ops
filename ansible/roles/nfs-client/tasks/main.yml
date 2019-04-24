@@ -1,0 +1,21 @@
+- name: Install nfs-utils
+  yum:
+    name: nfs-utils
+    state: installed
+
+- name: Create nfs mount point
+  file:
+    path: "{{ nfs_client_path }}"
+    state: directory
+
+- name: Add nfs export to /etc/fstab
+  lineinfile:
+    dest: /etc/fstab
+    line: "{{ nfs_server_host }}:{{ nfs_server_path }} {{ nfs_client_path }} nfs"
+
+- name: Mount nfs volume 
+  mount:
+    name: "{{ nfs_client_path }}"
+    src: "{{ nfs_server_host }}:{{ nfs_server_path }}"
+    fstype: nfs 
+    state: mounted 

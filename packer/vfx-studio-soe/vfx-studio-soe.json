@@ -3,10 +3,15 @@
         "ansible_root": "",
         "ansible_host": "default",
         "ansible_connection": "docker",
+        "ansible_vault_file": "{{env `ANSIBLE_VAULT_PASSWORD_FILE`}}",
         "docker_user": "",
         "docker_pass": "",
         "image_name": "vfx-studio-soe",
-        "image_version": "0.1.0"
+        "image_version": "0.1.0",
+        "kvm_user": "",
+        "kvm_pass": "",
+        "kvm_ssh_key": "{{env `HOME`}}/.ssh/id_rsa.pub",
+        "kvm_disk_size": "30000"
     },
     "builders": [
         {
@@ -22,6 +27,27 @@
                 "{{.Image}}",
                 "/bin/bash"
             ]
+        },
+        {
+            "type": "qemu",
+            "format": "qcow2",
+            "accelerator": "kvm",
+            "disk_size": "{{user `kvm_disk_size`}}",
+            "iso_url": "http://mirror.aarnet.edu.au/pub/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-Minimal-1810.iso",
+            "iso_checksum": "38d5d51d9d100fd73df031ffd6bd8b1297ce24660dc8c13a3b8b4534a4bd291c",
+            "iso_checksum_type": "sha256",
+            "http_directory": "http",
+            "output_directory": "build",
+            "ssh_username": "{{user `kvm_user`}}",
+            "ssh_password": "{{user `kvm_pass`}}",
+            "ssh_wait_timeout": "30m",
+            "headless": false,
+            "vm_name": "{{user `image_name`}}_{{user `image_version`}}.qcow2",
+            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+            "boot_wait": "10s",
+            "boot_command": [
+                "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+            ]
         }
     ],
     "provisioners": [
@@ -35,7 +61,45 @@
             "extra_arguments": [
                 "--extra-vars",
                 "ansible_host={{user `ansible_host`}} ansible_connection={{user `ansible_connection`}} image_name={{user `image_name`}} image_version={{user `image_version`}}"
-            ]
+            ],
+            "only": ["docker"]
+        },
+        {
+            "type": "file",
+            "source": "{{user `kvm_ssh_key`}}",
+            "destination": "/tmp/id_rsa.pub",
+            "only": ["qemu"]
+        },
+        {
+            "type": "shell",
+            "inline": ["mkdir ~/.ssh; mv /tmp/id_rsa.pub ~/.ssh/id_rsa.pub"],
+            "only": ["qemu"]
+        },
+        {
+            "type": "file",
+            "source": "{{user `ansible_vault_file`}}",
+            "destination": "/tmp/.vault_pass",
+            "only": ["qemu"]
+        },
+        {
+            "type": "ansible-local",
+            "playbook_file": "{{user `ansible_root`}}/playbooks/vfx-studio-soe.yml",
+            "role_paths": [
+                "{{user `ansible_root`}}/roles/bash",
+                "{{user `ansible_root`}}/roles/jumpcloud-agent",
+                "{{user `ansible_root`}}/roles/ops-user"
+            ],
+            "extra_arguments": [
+                "--vault-password-file=/tmp/.vault_pass",
+                "--extra-vars",
+                "'image_name={{user `image_name`}} image_version={{user `image_version`}}'"
+            ],
+            "only": ["qemu"]
+        },
+        {
+            "type": "shell",
+            "inline": ["rm ~/.ssh/id_rsa.pub; rm /tmp/.vault_pass"],
+            "only": ["qemu"]
         }
     ],
     "post-processors": [
@@ -43,13 +107,15 @@
             {
                 "type": "docker-tag",
                 "repository": "{{user `docker_user`}}/{{user `image_name`}}",
-                "tag": "{{user `image_version`}}"
+                "tag": "{{user `image_version`}}",
+                "only": ["docker"]
             },
             {
                 "type": "docker-push",
                 "login": "true",
                 "login_username": "{{user `docker_user`}}",
-                "login_password": "{{user `docker_pass`}}"
+                "login_password": "{{user `docker_pass`}}",
+                "only": ["docker"]
             }
         ]
     ]
